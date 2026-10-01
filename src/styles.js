@@ -143,12 +143,8 @@ td.num,th.num{text-align:right}
 td.rank,th.rank{width:56px;text-align:center;padding-left:6px;padding-right:6px}
 td.player{font-size:1.1rem}
 td.date{white-space:nowrap}
-tbody tr{animation:inkin .7s ease-out backwards;animation-delay:calc(var(--i,0) * 90ms + 120ms)}
-@keyframes inkin{
-  from{opacity:0;filter:blur(1.5px);color:rgba(56,35,15,0)}
-  60%{opacity:1;filter:blur(.3px)}
-  to{opacity:1;filter:none}
-}
+table.board tbody tr{animation:inkin .7s ease-out backwards;animation-delay:calc(var(--i,0) * 90ms + 120ms)}
+@keyframes inkin{from{opacity:0} to{opacity:1}}
 .numeral{font-family:var(--fell);font-size:1.15rem;color:var(--ink-soft)}
 
 /* Wax seals */
@@ -169,7 +165,7 @@ tbody tr{animation:inkin .7s ease-out backwards;animation-delay:calc(var(--i,0) 
   background:inherit;filter:brightness(.88)
 }
 .seal-1{background:radial-gradient(circle at 34% 28%,#c24a35 0%,#9c2d1d 45%,#6b170d 100%)}
-.seal-2{background:radial-gradient(circle at 34% 28%,#eceae4 0%,#a9a7a1 50%,#6f6d68 100%);color:rgba(255,255,255,.9)}
+.seal-2{background:radial-gradient(circle at 34% 28%,#eceae4 0%,#a9a7a1 50%,#6f6d68 100%);color:var(--ink);text-shadow:0 1px 0 rgba(255,255,255,.45)}
 .seal-3{background:radial-gradient(circle at 34% 28%,#d9a16a 0%,#a2672f 50%,#6a3e17 100%)}
 .seal{isolation:isolate}
 
@@ -218,6 +214,7 @@ button{
   -webkit-mask-image:${STAMP_MASK};mask-image:${STAMP_MASK};-webkit-mask-size:120px;mask-size:120px;
   transition:transform .12s ease,background-color .12s ease
 }
+button:focus-visible{-webkit-mask-image:none;mask-image:none;outline:2px dashed var(--red);outline-offset:3px}
 button:hover{background:rgba(139,42,27,.08);transform:rotate(-1.2deg) scale(1.03)}
 button:active{transform:rotate(-1.2deg) scale(.97)}
 .actions{margin:20px 0 4px}
@@ -252,12 +249,12 @@ td form.inline button{font-size:.85rem;padding:5px 9px 6px;color:var(--ink-soft)
 }
 
 /* Globle */
-.globe .meridian{transform-origin:50px 50px;animation:spin 7s linear infinite}
+.globe .meridian{transform-origin:50px 50px;transform:scaleX(var(--m,1));animation:spin 7s linear infinite}
 @keyframes spin{
   0%{transform:scaleX(1)} 25%{transform:scaleX(0)} 50%{transform:scaleX(-1)} 75%{transform:scaleX(0)} 100%{transform:scaleX(1)}
 }
 .globe .land{animation:drift 7s linear infinite,warm 7s ease-in-out infinite}
-@keyframes drift{from{transform:translateX(-36px)} to{transform:translateX(36px)}}
+@keyframes drift{0%{transform:translateX(-36px);opacity:0} 12%,88%{opacity:1} 100%{transform:translateX(36px);opacity:0}}
 @keyframes warm{0%,15%{fill:#e3c15a} 45%{fill:#d9822f} 75%,100%{fill:#a8321f}}
 .globe .land{fill:#a8321f;transform:translateX(0)}
 

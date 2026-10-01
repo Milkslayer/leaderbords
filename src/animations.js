@@ -33,9 +33,9 @@ function globle(uid) {
 <g fill="none" stroke="${INK}" stroke-linecap="round" filter="url(#${sketch})">
 <g stroke-width=".7" opacity=".65">
 <ellipse class="meridian" cx="50" cy="50" rx="40" ry="40"/>
-<ellipse class="meridian" style="animation-delay:-1.75s" cx="50" cy="50" rx="40" ry="40"/>
-<ellipse class="meridian" style="animation-delay:-3.5s" cx="50" cy="50" rx="40" ry="40"/>
-<ellipse class="meridian" style="animation-delay:-5.25s" cx="50" cy="50" rx="40" ry="40"/>
+<ellipse class="meridian" style="--m:.7;animation-delay:-1.75s" cx="50" cy="50" rx="40" ry="40"/>
+<ellipse class="meridian" style="--m:.35;animation-delay:-3.5s" cx="50" cy="50" rx="40" ry="40"/>
+<ellipse class="meridian" style="--m:0;animation-delay:-5.25s" cx="50" cy="50" rx="40" ry="40"/>
 <path d="M14 34h72M10 50h80M14 66h72" opacity=".8"/>
 </g>
 <circle cx="50" cy="50" r="40" stroke-width="1.6"/>
@@ -95,5 +95,5 @@ export function gameAnimation(gameId, { size = 'lg' } = {}) {
   const render = Object.hasOwn(RENDER, gameId) ? RENDER[gameId] : null;
   if (!render) return '';
   const s = size === 'sm' ? 'sm' : 'lg';
-  return `<div class="anim anim-${s}" data-anim="${gameId}" aria-hidden="true">${render(s)}</div>`;
+  return `<div class="anim anim-${s}" data-anim="${gameId}" aria-hidden="true">${render(`${gameId}-${s}`)}</div>`;
 }

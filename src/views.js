@@ -73,7 +73,7 @@ function ledger(columns, rows) {
         `<tr style="--i:${i}">${columns.map((c) => c.render(r, i)).join('')}</tr>`,
     )
     .join('');
-  return `<div class="ledger"><div class="ledger-scroll"><table><thead><tr>${head}</tr></thead><tbody>${body}</tbody></table></div></div>`;
+  return `<div class="ledger"><div class="ledger-scroll"><table class="board"><thead><tr>${head}</tr></thead><tbody>${body}</tbody></table></div></div>`;
 }
 
 const td = (cls, value) => `<td class="${cls}">${e(value)}</td>`;
@@ -137,7 +137,7 @@ export function adminPage({ players, results, today, error, form = {} }) {
   const gameName = (id) => GAMES.find((g) => g.id === id)?.name ?? id;
   const rows = results
     .map(
-      (r, i) => `<tr style="--i:${Math.min(i, 12)}"><td class="player">${e(r.playerName)}</td><td>${e(gameName(r.game))}</td><td class="date">${e(r.date)}</td><td class="num"><span class="stamp">${e(r.score)}</span></td>
+      (r) => `<tr><td class="player">${e(r.playerName)}</td><td>${e(gameName(r.game))}</td><td class="date">${e(r.date)}</td><td class="num"><span class="stamp">${e(r.score)}</span></td>
 <td class="num"><form class="inline" method="post" action="/admin/results/${e(r.id)}/delete"><button type="submit">Delete</button></form></td></tr>`,
     )
     .join('');
