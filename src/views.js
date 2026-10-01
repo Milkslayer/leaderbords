@@ -28,6 +28,8 @@ export function layout(title, body, { current } = {}) {
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>${e(title)}</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<meta name="theme-color" content="#e8d6ae">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="${FONTS_HREF}">
@@ -116,7 +118,7 @@ export function gamePage({ game, period, board }) {
   ];
   return layout(
     `${game.name} - Daily Leaderboard`,
-    `<div class="game-head">${gameAnimation(game.id, { size: 'lg' })}<h1>${e(game.name)}</h1></div>${tabs(`/game/${game.id}`, period)}${ledger(columns, board)}`,
+    `<div class="game-head">${gameAnimation(game.id, { size: 'lg' })}<div class="game-title"><h1>${e(game.name)}</h1><a class="play-link" href="${e(game.url)}" target="_blank" rel="noopener noreferrer">Play ${e(game.name)} <span aria-hidden="true">&#8599;</span></a></div></div>${tabs(`/game/${game.id}`, period)}${ledger(columns, board)}`,
     { current: game.id },
   );
 }

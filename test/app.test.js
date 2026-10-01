@@ -2,6 +2,7 @@ import { describe, it, expect, beforeEach } from 'vitest';
 import request from 'supertest';
 import { createApp } from '../src/app.js';
 import { openDb } from '../src/db.js';
+import { GAMES } from '../src/games.js';
 
 const TODAY = '2026-10-01';
 let db, app;
@@ -74,6 +75,26 @@ describe('public boards', () => {
       expect(sea).toContain(cls);
     }
     expect(res.text).toMatch(/\.sea\{[^}]*pointer-events:none/);
+  });
+  it('each game page links to play the game in a new tab', async () => {
+    for (const g of GAMES) {
+      const res = await request(app).get(`/game/${g.id}`);
+      const tag = res.text.match(/<a [^>]*class="play-link"[^>]*>/)?.[0] ?? '';
+      expect(tag).toContain(`href="${g.url}"`);
+      expect(tag).toContain('target="_blank"');
+      expect(tag).toMatch(/rel="[^"]*noopener[^"]*"/);
+      expect(res.text).toContain(`Play ${g.name}`);
+    }
+  });
+  it('layout links the favicon and theme color; favicon routes work', async () => {
+    const res = await request(app).get('/');
+    expect(res.text).toContain('<link rel="icon" type="image/svg+xml" href="/favicon.svg">');
+    expect(res.text).toContain('<meta name="theme-color" content="#e8d6ae">');
+    const svg = await request(app).get('/favicon.svg');
+    expect(svg.status).toBe(200);
+    expect(svg.headers['content-type']).toMatch(/image\/svg\+xml/);
+    expect(svg.headers['cache-control']).toMatch(/max-age=\d{6,}/);
+    expect((await request(app).get('/favicon.ico')).status).toBe(204);
   });
   it('404s unknown game', async () => {
     expect((await request(app).get('/game/nope')).status).toBe(404);

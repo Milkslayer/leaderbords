@@ -2,6 +2,7 @@ import crypto from 'node:crypto';
 import express from 'express';
 import { GAMES, getGame, parseShare, ParseError, wordleDate } from './games.js';
 import { periodStart, gameBoard, overallBoard } from './leaderboard.js';
+import { FAVICON_SVG } from './favicon.js';
 import { overallPage, gamePage, loginPage, adminPage } from './views.js';
 
 const PERIODS = ['today', 'week', 'all'];
@@ -37,6 +38,11 @@ export function createApp({ db, adminPassword, sessionSecret, today }) {
 
   const periodOf = (req) => (PERIODS.includes(req.query.period) ? req.query.period : 'week');
   const rowsFor = (period) => db.resultsSince(periodStart(period, today()), today());
+
+  app.get('/favicon.svg', (req, res) => {
+    res.type('image/svg+xml').set('Cache-Control', 'public, max-age=31536000, immutable').send(FAVICON_SVG);
+  });
+  app.get('/favicon.ico', (req, res) => res.status(204).end());
 
   app.get('/', (req, res) => {
     const period = periodOf(req);
