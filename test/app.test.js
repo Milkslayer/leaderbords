@@ -65,6 +65,16 @@ describe('public boards', () => {
       expect(res.text.indexOf('data-bg="sea-map"')).toBeLessThan(res.text.indexOf('<main>'));
     }
   });
+  it('the sea map stays small, inert and carries its game easter eggs', async () => {
+    const res = await request(app).get('/');
+    const sea = res.text.slice(res.text.indexOf('<div class="sea"'), res.text.indexOf('<header'));
+    expect(sea.length).toBeLessThan(20000);
+    expect(sea).not.toMatch(/<a\b|<button|<script/);
+    for (const cls of ['sea-whale', 'sea-kraken', 'sea-duel', 'sea-storm', 'sea-bottle', 'sea-gull', 'sea-globle', 'wrow', 'ftile', 'needle', 'blob']) {
+      expect(sea).toContain(cls);
+    }
+    expect(res.text).toMatch(/\.sea\{[^}]*pointer-events:none/);
+  });
   it('404s unknown game', async () => {
     expect((await request(app).get('/game/nope')).status).toBe(404);
   });
