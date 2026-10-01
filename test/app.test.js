@@ -166,3 +166,18 @@ describe('admin', () => {
     }
   });
 });
+
+describe('parchment views', () => {
+  it('each game page includes its animation', async () => {
+    for (const id of ['wordle', 'globle', 'flagle', 'countryle']) {
+      const res = await request(app).get(`/game/${id}`);
+      expect(res.text).toContain(`data-anim="${id}"`);
+    }
+  });
+  it('overall page shows all four showcase cards linking to games', async () => {
+    const res = await request(app).get('/');
+    for (const id of ['wordle', 'globle', 'flagle', 'countryle']) {
+      expect(res.text).toMatch(new RegExp(`<a href="/game/${id}"><div class="art"><div class="anim anim-sm" data-anim="${id}"`));
+    }
+  });
+});

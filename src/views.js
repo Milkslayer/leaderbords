@@ -1,4 +1,6 @@
 import { GAMES } from './games.js';
+import { CSS, FONTS_HREF } from './styles.js';
+import { gameAnimation } from './animations.js';
 
 export function escapeHtml(value) {
   return String(value ?? '')
@@ -11,38 +13,13 @@ export function escapeHtml(value) {
 
 const e = escapeHtml;
 
-const CSS = `
-*{box-sizing:border-box}
-body{margin:0;font:16px/1.5 system-ui,sans-serif;color:#1a1a1a;background:#f6f6f4}
-main,header nav{max-width:720px;margin:0 auto;padding:0 16px}
-header{background:#fff;border-bottom:1px solid #ddd}
-header nav{display:flex;flex-wrap:wrap;gap:4px 16px;padding-top:12px;padding-bottom:12px}
-a{color:#0b5cad}
-nav a{text-decoration:none;font-weight:600}
-h1{font-size:1.5rem;margin:24px 0 12px}
-h2{font-size:1.1rem;margin:28px 0 8px}
-.tabs{display:flex;gap:8px;margin:0 0 16px}
-.tabs a{padding:4px 12px;border:1px solid #ccc;border-radius:16px;text-decoration:none;background:#fff}
-.tabs a.active{background:#1a1a1a;color:#fff;border-color:#1a1a1a}
-table{width:100%;border-collapse:collapse;background:#fff;border:1px solid #ddd}
-th,td{padding:8px 10px;text-align:left;border-bottom:1px solid #eee}
-th{background:#fafafa;font-size:.85rem}
-td.num,th.num{text-align:right}
-.error{background:#fde8e8;border:1px solid #e0a0a0;padding:8px 12px;border-radius:4px}
-.empty{color:#666}
-form{margin:0 0 12px}
-label{display:block;margin:8px 0 2px;font-size:.9rem}
-input,select,textarea,button{font:inherit;padding:6px 8px;max-width:100%}
-textarea{width:100%;min-height:120px}
-button{cursor:pointer}
-.inline{display:inline}
-`;
-
-export function layout(title, body) {
+export function layout(title, body, { current } = {}) {
+  const link = (href, label, id) =>
+    `<a href="${e(href)}"${id === current ? ' aria-current="page"' : ''}>${e(label)}</a>`;
   const links = [
-    '<a href="/">Overall</a>',
-    ...GAMES.map((g) => `<a href="/game/${e(g.id)}">${e(g.name)}</a>`),
-    '<a href="/admin">Admin</a>',
+    link('/', 'Overall', 'overall'),
+    ...GAMES.map((g) => link(`/game/${g.id}`, g.name, g.id)),
+    link('/admin', 'Admin', 'admin'),
   ].join('\n');
   return `<!doctype html>
 <html lang="en">
@@ -50,10 +27,17 @@ export function layout(title, body) {
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>${e(title)}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="${FONTS_HREF}">
 <style>${CSS}</style>
 </head>
 <body>
-<header><nav>${links}</nav></header>
+<header class="masthead">
+<a class="title" href="/">Daily Leaderboard</a>
+<span class="rule"></span>
+<nav>${links}</nav>
+</header>
 <main>
 ${body}
 </main>
@@ -74,41 +58,72 @@ function tabs(basePath, period) {
   ).join('')}</div>`;
 }
 
-function table(headers, rows) {
-  if (rows.length === 0) return '<p class="empty">No results yet</p>';
-  const head = headers.map((h, i) => `<th${i > 0 ? ' class="num"' : ''}>${e(h)}</th>`).join('');
+function rankCell(rank) {
+  if (rank <= 3) return `<td class="rank"><span class="seal seal-${rank}" title="Rank ${rank}">${rank}</span></td>`;
+  return `<td class="rank"><span class="numeral">${e(rank)}</span></td>`;
+}
+
+// columns: [{ label, cls, render(row) -> html }]
+function ledger(columns, rows) {
+  if (rows.length === 0) return '<div class="ledger"><p class="empty">No results yet</p></div>';
+  const head = columns.map((c) => `<th${c.cls ? ` class="${c.cls}"` : ''}>${e(c.label)}</th>`).join('');
   const body = rows
-    .map((r) => `<tr>${r.map((c, i) => `<td${i > 0 ? ' class="num"' : ''}>${e(c)}</td>`).join('')}</tr>`)
+    .map(
+      (r, i) =>
+        `<tr style="--i:${i}">${columns.map((c) => c.render(r, i)).join('')}</tr>`,
+    )
     .join('');
-  return `<table><thead><tr>${head}</tr></thead><tbody>${body}</tbody></table>`;
+  return `<div class="ledger"><div class="ledger-scroll"><table><thead><tr>${head}</tr></thead><tbody>${body}</tbody></table></div></div>`;
+}
+
+const td = (cls, value) => `<td class="${cls}">${e(value)}</td>`;
+
+function showcase() {
+  return `<nav class="showcase" aria-label="Games">${GAMES.map(
+    (g) => `<a href="/game/${e(g.id)}"><div class="art">${gameAnimation(g.id, { size: 'sm' })}</div><span class="name">${e(g.name)}</span></a>`,
+  ).join('')}</nav>`;
 }
 
 export function overallPage({ period, board }) {
-  const rows = board.map((r, i) => [i + 1, r.playerName, r.points, r.played]);
+  const columns = [
+    { label: '#', cls: 'rank', render: (r, i) => rankCell(i + 1) },
+    { label: 'Player', render: (r) => td('player', r.playerName) },
+    { label: 'Points', cls: 'num', render: (r) => `<td class="num"><span class="stamp">${e(r.points)}</span></td>` },
+    { label: 'Played', cls: 'num', render: (r) => td('num', r.played) },
+  ];
   return layout(
     'Overall - Daily Leaderboard',
-    `<h1>Overall</h1>${tabs('/', period)}${table(['#', 'Player', 'Points', 'Played'], rows)}`,
+    `${showcase()}<h1>Overall</h1>${tabs('/', period)}${ledger(columns, board)}`,
+    { current: 'overall' },
   );
 }
 
 export function gamePage({ game, period, board }) {
-  const rows = board.map((r) => [r.playerName, r.avg, r.played, r.wins]);
+  const columns = [
+    { label: '#', cls: 'rank', render: (r, i) => rankCell(i + 1) },
+    { label: 'Player', render: (r) => td('player', r.playerName) },
+    { label: 'Avg', cls: 'num', render: (r) => `<td class="num"><span class="stamp">${e(r.avg)}</span></td>` },
+    { label: 'Played', cls: 'num', render: (r) => td('num', r.played) },
+    { label: 'Wins', cls: 'num', render: (r) => td('num', r.wins) },
+  ];
   return layout(
     `${game.name} - Daily Leaderboard`,
-    `<h1>${e(game.name)}</h1>${tabs(`/game/${game.id}`, period)}${table(['Player', 'Avg', 'Played', 'Wins'], rows)}`,
+    `<div class="game-head">${gameAnimation(game.id, { size: 'lg' })}<h1>${e(game.name)}</h1></div>${tabs(`/game/${game.id}`, period)}${ledger(columns, board)}`,
+    { current: game.id },
   );
 }
 
 export function loginPage({ error } = {}) {
   return layout(
     'Login - Daily Leaderboard',
-    `<h1>Admin login</h1>
+    `<div class="login"><h1>Admin login</h1>
 ${error ? `<p class="error">${e(error)}</p>` : ''}
-<form method="post" action="/login">
+<div class="ledger plain"><form class="sheet-form" method="post" action="/login">
 <label for="password">Password</label>
 <input id="password" name="password" type="password" required autofocus>
-<button type="submit">Log in</button>
-</form>`,
+<p class="actions"><button type="submit">Log in</button></p>
+</form></div></div>`,
+    { current: 'admin' },
   );
 }
 
@@ -122,35 +137,36 @@ export function adminPage({ players, results, today, error, form = {} }) {
   const gameName = (id) => GAMES.find((g) => g.id === id)?.name ?? id;
   const rows = results
     .map(
-      (r) => `<tr><td>${e(r.playerName)}</td><td>${e(gameName(r.game))}</td><td>${e(r.date)}</td><td class="num">${e(r.score)}</td>
-<td><form class="inline" method="post" action="/admin/results/${e(r.id)}/delete"><button type="submit">Delete</button></form></td></tr>`,
+      (r, i) => `<tr style="--i:${Math.min(i, 12)}"><td class="player">${e(r.playerName)}</td><td>${e(gameName(r.game))}</td><td class="date">${e(r.date)}</td><td class="num"><span class="stamp">${e(r.score)}</span></td>
+<td class="num"><form class="inline" method="post" action="/admin/results/${e(r.id)}/delete"><button type="submit">Delete</button></form></td></tr>`,
     )
     .join('');
   const recent = results.length
-    ? `<table><thead><tr><th>Player</th><th>Game</th><th>Date</th><th class="num">Score</th><th></th></tr></thead><tbody>${rows}</tbody></table>`
-    : '<p class="empty">No results yet</p>';
+    ? `<div class="ledger plain"><div class="ledger-scroll"><table><thead><tr><th>Player</th><th>Game</th><th>Date</th><th class="num">Score</th><th></th></tr></thead><tbody>${rows}</tbody></table></div></div>`
+    : '<div class="ledger plain"><p class="empty">No results yet</p></div>';
   return layout(
     'Admin - Daily Leaderboard',
     `<h1>Admin</h1>
 ${error ? `<p class="error">${e(error)}</p>` : ''}
 <h2>Submit result</h2>
-<form method="post" action="/admin/results">
+<div class="ledger plain"><form class="sheet-form" method="post" action="/admin/results">
 <label for="playerId">Player</label>
 <select id="playerId" name="playerId" required>${options}</select>
 <label for="date">Date</label>
 <input id="date" name="date" type="date" value="${e(form.date || today)}" required>
 <label for="text">Share text</label>
 <textarea id="text" name="text" required>${e(form.text ?? '')}</textarea>
-<p><button type="submit">Submit</button></p>
-</form>
+<p class="actions"><button type="submit">Submit</button></p>
+</form></div>
 <h2>Add player</h2>
-<form method="post" action="/admin/players">
+<div class="ledger plain"><form class="sheet-form" method="post" action="/admin/players">
 <label for="name">Name</label>
-<input id="name" name="name" required>
-<button type="submit">Add</button>
-</form>
+<div class="inline-row"><input id="name" name="name" required>
+<button type="submit">Add</button></div>
+</form></div>
 <h2>Recent results</h2>
 ${recent}
-<form method="post" action="/logout"><button type="submit">Log out</button></form>`,
+<form class="logout" method="post" action="/logout"><button type="submit">Log out</button></form>`,
+    { current: 'admin' },
   );
 }
