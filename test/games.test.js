@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { GAMES, getGame, parseShare, ParseError } from '../src/games.js';
+import { GAMES, getGame, parseShare, ParseError, wordleDate } from '../src/games.js';
 
 const grid = '\n\n⬛⬛⬛⬛⬛\n🟩🟩⬛⬛⬛\n🟩🟩🟩🟩🟩';
 
@@ -14,25 +14,36 @@ describe('GAMES', () => {
 
 describe('wordle', () => {
   it('parses a normal score', () => {
-    expect(parseShare('Wordle 1,064 4/6' + grid)).toEqual({ gameId: 'wordle', score: 4, failed: false });
+    expect(parseShare('Wordle 1,064 4/6' + grid)).toEqual({ gameId: 'wordle', score: 4, failed: false, puzzle: 1064 });
   });
   it('parses comma-less number', () => {
-    expect(parseShare('Wordle 1571 3/6')).toEqual({ gameId: 'wordle', score: 3, failed: false });
+    expect(parseShare('Wordle 1571 3/6')).toEqual({ gameId: 'wordle', score: 3, failed: false, puzzle: 1571 });
   });
   it('parses dot thousands separator', () => {
-    expect(parseShare('Wordle 1.571 4/6')).toEqual({ gameId: 'wordle', score: 4, failed: false });
+    expect(parseShare('Wordle 1.571 4/6')).toEqual({ gameId: 'wordle', score: 4, failed: false, puzzle: 1571 });
   });
   it('parses hard mode and # prefix', () => {
-    expect(parseShare('#Wordle 1,063 4/6*' + grid)).toEqual({ gameId: 'wordle', score: 4, failed: false });
+    expect(parseShare('#Wordle 1,063 4/6*' + grid)).toEqual({ gameId: 'wordle', score: 4, failed: false, puzzle: 1063 });
   });
   it('parses fail as 7', () => {
-    expect(parseShare('Wordle 1571 X/6*')).toEqual({ gameId: 'wordle', score: 7, failed: true });
+    expect(parseShare('Wordle 1571 X/6*')).toEqual({ gameId: 'wordle', score: 7, failed: true, puzzle: 1571 });
   });
   it('tolerates surrounding whitespace and case', () => {
-    expect(parseShare('  \n wordle 1,064 2/6\n\n')).toEqual({ gameId: 'wordle', score: 2, failed: false });
+    expect(parseShare('  \n wordle 1,064 2/6\n\n')).toEqual({ gameId: 'wordle', score: 2, failed: false, puzzle: 1064 });
   });
   it('rejects out-of-range score', () => {
     expect(() => parseShare('Wordle 1571 9/6')).toThrow(ParseError);
+  });
+});
+
+describe('wordleDate', () => {
+  it.each([
+    [0, '2021-06-19'],
+    [1, '2021-06-20'],
+    [1000, '2024-03-15'],
+    [1930, '2026-10-01'],
+  ])('#%i is %s', (n, date) => {
+    expect(wordleDate(n)).toBe(date);
   });
 });
 

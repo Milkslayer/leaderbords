@@ -92,7 +92,7 @@ describe('admin', () => {
     const cookie = await login();
     const p = db.addPlayer('Carol');
     const res = await request(app).post('/admin/results').set('Cookie', cookie).type('form')
-      .send({ playerId: String(p.id), date: TODAY, text: 'Wordle 1,571 4/6\n⬛🟨⬛⬛⬛' });
+      .send({ playerId: String(p.id), date: TODAY, text: 'Wordle 1,930 4/6\n⬛🟨⬛⬛⬛' });
     expect(res.status).toBe(303);
     expect(res.headers.location).toBe('/admin');
     const board = await request(app).get('/');
@@ -153,6 +153,24 @@ describe('admin', () => {
     const res = await request(app).post(`/admin/results/${r.id}/delete`).set('Cookie', cookie);
     expect(res.status).toBe(303);
     expect(db.recentResults(50)).toHaveLength(1);
+  });
+  it('rejects a Wordle whose puzzle number is for another date', async () => {
+    const cookie = await login();
+    const p = db.addPlayer('Carol');
+    const res = await request(app).post('/admin/results').set('Cookie', cookie).type('form')
+      .send({ playerId: String(p.id), date: TODAY, text: 'Wordle 1,571 4/6' });
+    expect(res.status).toBe(400);
+    expect(res.text).toContain('This is Wordle #1571, which is for 2025-10-07.');
+    expect(res.text).toContain('Submit result');
+    expect(db.resultsSince(null)).toHaveLength(0);
+  });
+  it('accepts a Wordle matching an earlier selected date', async () => {
+    const cookie = await login();
+    const p = db.addPlayer('Carol');
+    const res = await request(app).post('/admin/results').set('Cookie', cookie).type('form')
+      .send({ playerId: String(p.id), date: '2024-03-15', text: 'Wordle 1.000 X/6' });
+    expect(res.status).toBe(303);
+    expect(db.resultsSince(null)[0]).toMatchObject({ date: '2024-03-15', score: 7, failed: true });
   });
   it('stores a failed paste as failed', async () => {
     const cookie = await login();

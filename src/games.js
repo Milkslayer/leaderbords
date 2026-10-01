@@ -10,6 +10,14 @@ export function getGame(id) {
   return GAMES.find((g) => g.id === id);
 }
 
+const WORDLE_EPOCH_MS = Date.UTC(2021, 5, 19); // Wordle #0
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+// Date (YYYY-MM-DD) of Wordle puzzle number n.
+export function wordleDate(n) {
+  return new Date(WORDLE_EPOCH_MS + n * DAY_MS).toISOString().slice(0, 10);
+}
+
 export class ParseError extends Error {
   constructor(message) {
     super(message);
@@ -45,5 +53,7 @@ export function parseShare(text) {
     failed = true;
     score = Math.max(score + 1, 10); // a give-up never averages better than a real solve under 10
   }
-  return { gameId: parser.id, score, failed };
+  const result = { gameId: parser.id, score, failed };
+  if (parser.id === 'wordle') result.puzzle = Number(text.match(/wordle\s+([\d,.]+)\s+[1-6x]\/6/i)[1].replace(/[,.]/g, ''));
+  return result;
 }

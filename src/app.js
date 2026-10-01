@@ -1,6 +1,6 @@
 import crypto from 'node:crypto';
 import express from 'express';
-import { GAMES, getGame, parseShare, ParseError } from './games.js';
+import { GAMES, getGame, parseShare, ParseError, wordleDate } from './games.js';
 import { periodStart, gameBoard, overallBoard } from './leaderboard.js';
 import { overallPage, gamePage, loginPage, adminPage } from './views.js';
 
@@ -86,6 +86,10 @@ export function createApp({ db, adminPassword, sessionSecret, today }) {
     } catch (err) {
       if (err instanceof ParseError) return fail(err.message);
       throw err;
+    }
+    if (parsed.gameId === 'wordle') {
+      const puzzleDate = wordleDate(parsed.puzzle);
+      if (puzzleDate !== date) return fail(`This is Wordle #${parsed.puzzle}, which is for ${puzzleDate}.`);
     }
     db.upsertResult({ playerId: player.id, game: parsed.gameId, date, score: parsed.score, raw: text, failed: parsed.failed });
     res.redirect(303, '/admin');
