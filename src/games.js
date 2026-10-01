@@ -22,7 +22,7 @@ const fromSix = (v) => (v.toUpperCase() === 'X' ? 7 : Number(v));
 // Globle's real share starts "🌎 date 🌍" with no game name, hence the emoji detect.
 // Order matters only for detection priority; each entry detects and reads its own score.
 const PARSERS = [
-  { id: 'wordle', detect: /wordle/i, score: /wordle\s+[\d,]+\s+([1-6xX])\/6/i, map: fromSix, hint: 'e.g. "Wordle 1,571 4/6"' },
+  { id: 'wordle', detect: /wordle/i, score: /wordle\s+[\d,.]+\s+([1-6xX])\/6/i, map: fromSix, hint: 'e.g. "Wordle 1,571 4/6"' },
   { id: 'flagle', detect: /flagle/i, score: /(?<![\d])([1-6xX])\/6/i, map: fromSix, hint: 'e.g. "Flagle 4/6"' },
   { id: 'countryle', detect: /countryle/i, score: /(\d+)\s+(?:tries|try|guesses|guess)\b/i, map: fromTries, hint: 'e.g. "in 4 tries"' },
   { id: 'globle', detect: /globle|(?=[\s\S]*=\s*\d)[🌎🌍🌏][^\n]*[🌎🌍🌏]/iu, score: /=\s*(\d+)/, map: fromTries, hint: 'e.g. "🟥🟧🟨🟩 = 4"' },

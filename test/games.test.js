@@ -19,6 +19,9 @@ describe('wordle', () => {
   it('parses comma-less number', () => {
     expect(parseShare('Wordle 1571 3/6')).toEqual({ gameId: 'wordle', score: 3 });
   });
+  it('parses dot thousands separator', () => {
+    expect(parseShare('Wordle 1.571 4/6')).toEqual({ gameId: 'wordle', score: 4 });
+  });
   it('parses hard mode and # prefix', () => {
     expect(parseShare('#Wordle 1,063 4/6*' + grid)).toEqual({ gameId: 'wordle', score: 4 });
   });
