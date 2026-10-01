@@ -76,6 +76,16 @@ describe('public boards', () => {
       expect(res.text).toContain(`Play ${g.name}`);
     }
   });
+  it('layout links the favicon and theme color; favicon routes work', async () => {
+    const res = await request(app).get('/');
+    expect(res.text).toContain('<link rel="icon" type="image/svg+xml" href="/favicon.svg">');
+    expect(res.text).toContain('<meta name="theme-color" content="#e8d6ae">');
+    const svg = await request(app).get('/favicon.svg');
+    expect(svg.status).toBe(200);
+    expect(svg.headers['content-type']).toMatch(/image\/svg\+xml/);
+    expect(svg.headers['cache-control']).toMatch(/max-age=\d{6,}/);
+    expect((await request(app).get('/favicon.ico')).status).toBe(204);
+  });
   it('404s unknown game', async () => {
     expect((await request(app).get('/game/nope')).status).toBe(404);
   });
