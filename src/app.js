@@ -87,7 +87,7 @@ export function createApp({ db, adminPassword, sessionSecret, today }) {
       if (err instanceof ParseError) return fail(err.message);
       throw err;
     }
-    db.upsertResult({ playerId: player.id, game: parsed.gameId, date, score: parsed.score, raw: text });
+    db.upsertResult({ playerId: player.id, game: parsed.gameId, date, score: parsed.score, raw: text, failed: parsed.failed });
     res.redirect(303, '/admin');
   });
 

@@ -1,4 +1,8 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
+import Database from 'better-sqlite3';
 import { openDb } from '../src/db.js';
 
 describe('db', () => {
@@ -53,6 +57,7 @@ describe('db', () => {
       game: 'globle',
       date: '2026-10-01',
       score: 3,
+      failed: false,
     });
     expect(db.recentResults(2)).toHaveLength(2);
   });
@@ -80,7 +85,92 @@ describe('db', () => {
       game: 'wordle',
       date: expect.any(String),
       score: 3,
+      failed: false,
     });
     expect(db.resultsSince(null)).toHaveLength(3);
+  });
+
+  it('stores and returns failed as a boolean', () => {
+    const p = db.addPlayer('Alice');
+    db.upsertResult({ playerId: p.id, game: 'wordle', date: '2026-10-01', score: 7, raw: 'x', failed: true });
+    db.upsertResult({ playerId: p.id, game: 'flagle', date: '2026-10-01', score: 3, raw: 'x', failed: false });
+    const byGame = Object.fromEntries(db.resultsSince(null).map((r) => [r.game, r.failed]));
+    expect(byGame).toEqual({ wordle: true, flagle: false });
+    expect(db.recentResults(10).find((r) => r.game === 'wordle').failed).toBe(true);
+  });
+
+  it('upsert overwrites failed', () => {
+    const p = db.addPlayer('Alice');
+    db.upsertResult({ playerId: p.id, game: 'wordle', date: '2026-10-01', score: 7, raw: 'x', failed: true });
+    db.upsertResult({ playerId: p.id, game: 'wordle', date: '2026-10-01', score: 4, raw: 'y', failed: false });
+    expect(db.resultsSince(null)[0]).toMatchObject({ score: 4, failed: false });
+  });
+});
+
+describe('db migration', () => {
+  let dir;
+  beforeEach(() => {
+    dir = fs.mkdtempSync(path.join(os.tmpdir(), 'lb-migrate-'));
+  });
+  afterEach(() => fs.rmSync(dir, { recursive: true, force: true }));
+
+  const gaveUp = '#Countryle 1234\nGave up after 5 tries.\n\n🟩🟨⬜\n🏳️🏳️🏳️🏳️🏳️\n';
+
+  function oldDb(file) {
+    const old = new Database(file);
+    old.exec(`
+      CREATE TABLE players (id INTEGER PRIMARY KEY, name TEXT NOT NULL UNIQUE COLLATE NOCASE);
+      CREATE TABLE results (
+        id INTEGER PRIMARY KEY,
+        player_id INTEGER NOT NULL REFERENCES players(id) ON DELETE CASCADE,
+        game TEXT NOT NULL, date TEXT NOT NULL, score INTEGER NOT NULL, raw TEXT NOT NULL,
+        created_at TEXT NOT NULL DEFAULT (datetime('now')),
+        UNIQUE (player_id, game, date)
+      );
+      INSERT INTO players (id, name) VALUES (1, 'Alice');
+    `);
+    const ins = old.prepare('INSERT INTO results (player_id, game, date, score, raw) VALUES (1, ?, ?, ?, ?)');
+    ins.run('wordle', '2026-09-01', 7, 'Wordle 1,535 X/6');
+    ins.run('wordle', '2026-09-02', 4, 'Wordle 1,536 4/6');
+    ins.run('flagle', '2026-09-01', 7, 'Flagle X/6');
+    ins.run('flagle', '2026-09-02', 2, 'Flagle 2/6');
+    ins.run('countryle', '2026-09-01', 5, gaveUp);
+    ins.run('countryle', '2026-09-02', 3, '#Countryle 1234\nGuessed in 3 tries.\n');
+    ins.run('globle', '2026-09-01', 7, '🌎 Sep 1 🌍\n🟩 = 7');
+    old.close();
+  }
+
+  const rowsOf = (d) =>
+    Object.fromEntries(d.resultsSince(null).map((r) => [`${r.game} ${r.date}`, [r.score, r.failed]]));
+
+  const expected = {
+    'wordle 2026-09-01': [7, true],
+    'wordle 2026-09-02': [4, false],
+    'flagle 2026-09-01': [7, true],
+    'flagle 2026-09-02': [2, false],
+    'countryle 2026-09-01': [10, true],
+    'countryle 2026-09-02': [3, false],
+    'globle 2026-09-01': [7, false],
+  };
+
+  it('adds the failed column and backfills existing rows', () => {
+    const file = path.join(dir, 'old.db');
+    oldDb(file);
+    const d = openDb(file);
+    expect(rowsOf(d)).toEqual(expected);
+    d.close();
+    const raw = new Database(file);
+    const col = raw.prepare('PRAGMA table_info(results)').all().find((c) => c.name === 'failed');
+    raw.close();
+    expect(col).toMatchObject({ type: 'INTEGER', notnull: 1, dflt_value: '0' });
+  });
+
+  it('is idempotent across restarts', () => {
+    const file = path.join(dir, 'old.db');
+    oldDb(file);
+    openDb(file).close();
+    const d = openDb(file);
+    expect(rowsOf(d)).toEqual(expected);
+    d.close();
   });
 });

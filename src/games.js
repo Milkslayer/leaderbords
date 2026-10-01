@@ -37,7 +37,13 @@ export function parseShare(text) {
   const m = text.match(parser.score);
   const name = getGame(parser.id).name;
   if (!m) throw new ParseError(`Detected ${name} but could not read the score (${parser.hint}).`);
-  const score = parser.map(m[1]);
+  let score = parser.map(m[1]);
   if (!Number.isInteger(score) || score < 1) throw new ParseError(`Detected ${name} but the score is invalid.`);
-  return { gameId: parser.id, score };
+  let failed = false;
+  if (parser.id === 'wordle' || parser.id === 'flagle') failed = m[1].toUpperCase() === 'X';
+  if (parser.id === 'countryle' && /gave up/i.test(text)) {
+    failed = true;
+    score = Math.max(score + 1, 10); // a give-up never averages better than a real solve under 10
+  }
+  return { gameId: parser.id, score, failed };
 }

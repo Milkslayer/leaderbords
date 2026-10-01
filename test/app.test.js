@@ -154,6 +154,27 @@ describe('admin', () => {
     expect(res.status).toBe(303);
     expect(db.recentResults(50)).toHaveLength(1);
   });
+  it('stores a failed paste as failed', async () => {
+    const cookie = await login();
+    const p = db.addPlayer('Carol');
+    const res = await request(app).post('/admin/results').set('Cookie', cookie).type('form')
+      .send({ playerId: String(p.id), date: TODAY, text: 'Flagle X/6' });
+    expect(res.status).toBe(303);
+    expect(db.resultsSince(null)[0]).toMatchObject({ game: 'flagle', score: 7, failed: true });
+  });
+  it('recent results show fails as X, or "gave up" for Countryle', async () => {
+    const cookie = await login();
+    const p = db.addPlayer('Carol');
+    db.upsertResult({ playerId: p.id, game: 'flagle', date: TODAY, score: 7, raw: 'x', failed: true });
+    db.upsertResult({ playerId: p.id, game: 'countryle', date: TODAY, score: 10, raw: 'x', failed: true });
+    db.upsertResult({ playerId: p.id, game: 'globle', date: TODAY, score: 9, raw: 'x' });
+    const res = await request(app).get('/admin').set('Cookie', cookie);
+    expect(res.text).toContain('<span class="stamp">X</span>');
+    expect(res.text).toContain('<span class="stamp">gave up</span>');
+    expect(res.text).toContain('<span class="stamp">9</span>');
+    expect(res.text).not.toContain('<span class="stamp">7</span>');
+    expect(res.text).not.toContain('<span class="stamp">10</span>');
+  });
   it('escapes player names', async () => {
     const cookie = await login();
     const p = db.addPlayer('<script>alert(1)</script>');

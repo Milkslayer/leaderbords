@@ -135,9 +135,10 @@ export function adminPage({ players, results, today, error, form = {} }) {
     )
     .join('');
   const gameName = (id) => GAMES.find((g) => g.id === id)?.name ?? id;
+  const scoreText = (r) => (r.failed ? (r.game === 'countryle' ? 'gave up' : 'X') : r.score);
   const rows = results
     .map(
-      (r) => `<tr><td class="player">${e(r.playerName)}</td><td>${e(gameName(r.game))}</td><td class="date">${e(r.date)}</td><td class="num"><span class="stamp">${e(r.score)}</span></td>
+      (r) => `<tr><td class="player">${e(r.playerName)}</td><td>${e(gameName(r.game))}</td><td class="date">${e(r.date)}</td><td class="num"><span class="stamp">${e(scoreText(r))}</span></td>
 <td class="num"><form class="inline" method="post" action="/admin/results/${e(r.id)}/delete"><button type="submit">Delete</button></form></td></tr>`,
     )
     .join('');
