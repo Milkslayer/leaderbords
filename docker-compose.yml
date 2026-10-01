@@ -6,7 +6,7 @@ services:
     environment:
       ADMIN_PASSWORD: ${ADMIN_PASSWORD}
       SESSION_SECRET: ${SESSION_SECRET}
-      TZ: ${TZ:-Europe/London}
+      TZ: ${TZ:-Europe/Oslo}
     volumes:
       - leaderboard-data:/data
     restart: unless-stopped
