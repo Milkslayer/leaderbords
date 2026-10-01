@@ -31,6 +31,11 @@ describe('wordle', () => {
   it('tolerates surrounding whitespace and case', () => {
     expect(parseShare('  \n wordle 1,064 2/6\n\n')).toEqual({ gameId: 'wordle', score: 2, failed: false, puzzle: 1064 });
   });
+  it('rejects an absurd puzzle number with a ParseError', () => {
+    expect(() => parseShare('Wordle 1.2.3.4.5.6.7.8.9.0.1.2.3.4.5.6.7 4/6')).toThrow(ParseError);
+    expect(() => parseShare('Wordle 100,001 4/6')).toThrow(ParseError);
+    expect(parseShare('Wordle 100,000 4/6').puzzle).toBe(100000);
+  });
   it('rejects out-of-range score', () => {
     expect(() => parseShare('Wordle 1571 9/6')).toThrow(ParseError);
   });

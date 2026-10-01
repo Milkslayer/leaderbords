@@ -12,6 +12,7 @@ export function getGame(id) {
 
 const WORDLE_EPOCH_MS = Date.UTC(2021, 5, 19); // Wordle #0
 const DAY_MS = 24 * 60 * 60 * 1000;
+const MAX_WORDLE = 100000;
 
 // Date (YYYY-MM-DD) of Wordle puzzle number n.
 export function wordleDate(n) {
@@ -54,6 +55,10 @@ export function parseShare(text) {
     score = Math.max(score + 1, 10); // a give-up never averages better than a real solve under 10
   }
   const result = { gameId: parser.id, score, failed };
-  if (parser.id === 'wordle') result.puzzle = Number(text.match(/wordle\s+([\d,.]+)\s+[1-6x]\/6/i)[1].replace(/[,.]/g, ''));
+  if (parser.id === 'wordle') {
+    const puzzle = Number(text.match(/wordle\s+([\d,.]+)\s+[1-6x]\/6/i)[1].replace(/[,.]/g, ''));
+    if (!Number.isSafeInteger(puzzle) || puzzle > MAX_WORDLE) throw new ParseError(`Detected ${name} but the puzzle number is invalid.`);
+    result.puzzle = puzzle;
+  }
   return result;
 }

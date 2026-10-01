@@ -137,6 +137,7 @@ describe('db migration', () => {
     ins.run('countryle', '2026-09-01', 5, gaveUp);
     ins.run('countryle', '2026-09-02', 3, '#Countryle 1234\nGuessed in 3 tries.\n');
     ins.run('globle', '2026-09-01', 7, '🌎 Sep 1 🌍\n🟩 = 7');
+    ins.run('countryle', '2026-09-03', 6, 'Countryle: gave up, sorry');
     old.close();
   }
 
@@ -151,6 +152,7 @@ describe('db migration', () => {
     'countryle 2026-09-01': [10, true],
     'countryle 2026-09-02': [3, false],
     'globle 2026-09-01': [7, false],
+    'countryle 2026-09-03': [6, true], // gave up but unparseable: failed, score kept
   };
 
   it('adds the failed column and backfills existing rows', () => {

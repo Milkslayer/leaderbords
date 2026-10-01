@@ -4,23 +4,27 @@ import { parseShare } from './games.js';
 // Adds results.failed to databases created before it existed, backfilling old rows.
 // Runs only when the column is missing, so it is safe on every start.
 function migrateFailed(db) {
-  const cols = db.prepare('PRAGMA table_info(results)').all();
-  if (cols.some((c) => c.name === 'failed')) return;
+  const hasColumn = () => db.prepare('PRAGMA table_info(results)').all().some((c) => c.name === 'failed');
+  if (hasColumn()) return;
+  // IMMEDIATE takes the write lock up front; re-check so a concurrent start that won the race is a no-op.
   db.transaction(() => {
+    if (hasColumn()) return;
     db.exec('ALTER TABLE results ADD COLUMN failed INTEGER NOT NULL DEFAULT 0');
     db.exec("UPDATE results SET failed = 1 WHERE game IN ('wordle', 'flagle') AND score = 7");
     const fix = db.prepare('UPDATE results SET score = ?, failed = ? WHERE id = ?');
+    const markFailed = db.prepare('UPDATE results SET failed = 1 WHERE id = ?');
     for (const row of db.prepare("SELECT id, raw FROM results WHERE game = 'countryle'").all()) {
       if (!/gave up/i.test(row.raw)) continue;
       let parsed;
       try {
         parsed = parseShare(row.raw);
       } catch {
-        continue;
+        parsed = null;
       }
-      if (parsed.gameId === 'countryle') fix.run(parsed.score, parsed.failed ? 1 : 0, row.id);
+      if (parsed?.gameId === 'countryle') fix.run(parsed.score, parsed.failed ? 1 : 0, row.id);
+      else markFailed.run(row.id); // unparseable give-up: still a fail, keep the stored score
     }
-  })();
+  }).immediate();
 }
 
 const withFailedBool = (row) => ({ ...row, failed: row.failed === 1 });

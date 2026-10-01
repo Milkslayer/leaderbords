@@ -179,6 +179,14 @@ describe('admin', () => {
     expect(res.text).toContain('Submit result');
     expect(db.resultsSince(null)).toHaveLength(0);
   });
+  it('a huge Wordle puzzle number is a 400, not a 500', async () => {
+    const cookie = await login();
+    const p = db.addPlayer('Carol');
+    const res = await request(app).post('/admin/results').set('Cookie', cookie).type('form')
+      .send({ playerId: String(p.id), date: TODAY, text: 'Wordle 1.2.3.4.5.6.7.8.9.0.1.2.3.4.5.6.7 4/6' });
+    expect(res.status).toBe(400);
+    expect(db.resultsSince(null)).toHaveLength(0);
+  });
   it('accepts a Wordle matching an earlier selected date', async () => {
     const cookie = await login();
     const p = db.addPlayer('Carol');
