@@ -1,9 +1,9 @@
 export const GAMES = [
-  { id: 'wordle', name: 'Wordle', failScore: 7 },
-  { id: 'countryle', name: 'Countryle', failScore: null },
-  { id: 'globle', name: 'Globle', failScore: null },
-  { id: 'flagle', name: 'Flagle', failScore: 7 },
-  { id: 'poople', name: 'Poople', failScore: null },
+  { id: 'wordle', url: 'https://www.nytimes.com/games/wordle/index.html', name: 'Wordle', failScore: 7 },
+  { id: 'countryle', url: 'https://countryle.com/', name: 'Countryle', failScore: null },
+  { id: 'globle', url: 'https://globle-game.com/', name: 'Globle', failScore: null },
+  { id: 'flagle', url: 'https://www.flagle.io/', name: 'Flagle', failScore: 7 },
+  { id: 'poople', url: 'https://poople.io/', name: 'Poople', failScore: null },
 ];
 
 export function getGame(id) {

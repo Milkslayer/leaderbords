@@ -2,6 +2,7 @@ import { describe, it, expect, beforeEach } from 'vitest';
 import request from 'supertest';
 import { createApp } from '../src/app.js';
 import { openDb } from '../src/db.js';
+import { GAMES } from '../src/games.js';
 
 const TODAY = '2026-10-01';
 let db, app;
@@ -63,6 +64,16 @@ describe('public boards', () => {
       const res = await request(app).get(path);
       expect(res.text).toMatch(/<div class="sea"[^>]*data-bg="sea-map"[^>]*aria-hidden="true"/);
       expect(res.text.indexOf('data-bg="sea-map"')).toBeLessThan(res.text.indexOf('<main>'));
+    }
+  });
+  it('each game page links to play the game in a new tab', async () => {
+    for (const g of GAMES) {
+      const res = await request(app).get(`/game/${g.id}`);
+      const tag = res.text.match(/<a [^>]*class="play-link"[^>]*>/)?.[0] ?? '';
+      expect(tag).toContain(`href="${g.url}"`);
+      expect(tag).toContain('target="_blank"');
+      expect(tag).toMatch(/rel="[^"]*noopener[^"]*"/);
+      expect(res.text).toContain(`Play ${g.name}`);
     }
   });
   it('404s unknown game', async () => {

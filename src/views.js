@@ -116,7 +116,7 @@ export function gamePage({ game, period, board }) {
   ];
   return layout(
     `${game.name} - Daily Leaderboard`,
-    `<div class="game-head">${gameAnimation(game.id, { size: 'lg' })}<h1>${e(game.name)}</h1></div>${tabs(`/game/${game.id}`, period)}${ledger(columns, board)}`,
+    `<div class="game-head">${gameAnimation(game.id, { size: 'lg' })}<div class="game-title"><h1>${e(game.name)}</h1><a class="play-link" href="${e(game.url)}" target="_blank" rel="noopener noreferrer">Play ${e(game.name)} <span aria-hidden="true">&#8599;</span></a></div></div>${tabs(`/game/${game.id}`, period)}${ledger(columns, board)}`,
     { current: game.id },
   );
 }

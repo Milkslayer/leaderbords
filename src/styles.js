@@ -101,6 +101,19 @@ p{margin:0 0 12px}
 .game-head{display:flex;align-items:center;gap:22px;margin:22px 0 6px}
 .game-head h1{margin:0}
 .game-head .anim{flex:none}
+.game-title{display:flex;flex-direction:column;align-items:flex-start;gap:8px}
+.play-link{
+  display:inline-block;font:500 1rem/1 var(--serif);font-variant:small-caps;letter-spacing:.08em;
+  color:var(--red);text-decoration:none;padding:8px 14px 9px;
+  border:2px solid currentColor;border-radius:4px;
+  box-shadow:inset 0 0 0 2px var(--sheet),inset 0 0 0 3px currentColor;
+  transform:rotate(-1.2deg);
+  -webkit-mask-image:${STAMP_MASK};mask-image:${STAMP_MASK};-webkit-mask-size:120px;mask-size:120px;
+  transition:transform .12s ease,background-color .12s ease
+}
+.play-link:hover{background:rgba(139,42,27,.08);transform:rotate(-1.2deg) scale(1.03)}
+.play-link:active{transform:rotate(-1.2deg) scale(.97)}
+.play-link:focus-visible{-webkit-mask-image:none;mask-image:none}
 
 /* Bookmark tabs */
 .tabs{display:flex;gap:6px;margin:18px 0 0;padding-left:18px;position:relative;z-index:1}
