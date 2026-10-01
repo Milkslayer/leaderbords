@@ -35,6 +35,7 @@ export function openDb(path) {
     SELECT r.player_id AS playerId, p.name AS playerName, r.game AS game, r.date AS date, r.score AS score
     FROM results r JOIN players p ON p.id = r.player_id
     WHERE (@fromDate IS NULL OR r.date >= @fromDate)
+      AND (@toDate IS NULL OR r.date <= @toDate)
   `);
 
   return {
@@ -59,8 +60,8 @@ export function openDb(path) {
     recentResults(limit) {
       return selectRecent.all(limit);
     },
-    resultsSince(fromDate) {
-      return selectSince.all({ fromDate: fromDate ?? null });
+    resultsSince(fromDate, toDate) {
+      return selectSince.all({ fromDate: fromDate ?? null, toDate: toDate ?? null });
     },
     close() {
       db.close();

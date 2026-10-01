@@ -119,6 +119,21 @@ describe('admin', () => {
     expect((await request(app).post('/admin/results').set('Cookie', cookie).type('form')
       .send({ playerId: String(p.id), date: 'nope', text: t })).status).toBe(400);
   });
+  it('rejects a future date and keeps it off the boards', async () => {
+    const cookie = await login();
+    const p = db.addPlayer('Carol');
+    const res = await request(app).post('/admin/results').set('Cookie', cookie).type('form')
+      .send({ playerId: String(p.id), date: '2026-10-02', text: 'Wordle 1,571 4/6' });
+    expect(res.status).toBe(400);
+    expect(res.text).toContain("Date can&#39;t be in the future");
+    expect(db.resultsSince(null)).toHaveLength(0);
+  });
+  it('board routes ignore future-dated rows', async () => {
+    const p = db.addPlayer('Zed');
+    db.upsertResult({ playerId: p.id, game: 'wordle', date: '2026-10-05', score: 1, raw: 'x' });
+    const res = await request(app).get('/?period=week');
+    expect(res.text).not.toContain('Zed');
+  });
   it('adds player; duplicate and empty give 400', async () => {
     const cookie = await login();
     const add = (name) => request(app).post('/admin/players').set('Cookie', cookie).type('form').send({ name });

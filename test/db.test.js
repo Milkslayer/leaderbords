@@ -57,6 +57,16 @@ describe('db', () => {
     expect(db.recentResults(2)).toHaveLength(2);
   });
 
+  it('resultsSince bounds by toDate', () => {
+    const p = db.addPlayer('Alice');
+    for (const date of ['2026-09-30', '2026-10-01', '2026-10-02']) {
+      db.upsertResult({ playerId: p.id, game: 'wordle', date, score: 3, raw: 'x' });
+    }
+    const rows = db.resultsSince('2026-09-30', '2026-10-01');
+    expect(rows.map((r) => r.date).sort()).toEqual(['2026-09-30', '2026-10-01']);
+    expect(db.resultsSince(null, '2026-09-30')).toHaveLength(1);
+  });
+
   it('resultsSince filters by date', () => {
     const p = db.addPlayer('Alice');
     for (const date of ['2026-09-28', '2026-09-30', '2026-10-01']) {

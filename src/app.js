@@ -36,7 +36,7 @@ export function createApp({ db, adminPassword, sessionSecret, today }) {
   const requireAdmin = (req, res, next) => (isAdmin(req) ? next() : res.redirect('/login'));
 
   const periodOf = (req) => (PERIODS.includes(req.query.period) ? req.query.period : 'week');
-  const rowsFor = (period) => db.resultsSince(periodStart(period, today()));
+  const rowsFor = (period) => db.resultsSince(periodStart(period, today()), today());
 
   app.get('/', (req, res) => {
     const period = periodOf(req);
@@ -79,6 +79,7 @@ export function createApp({ db, adminPassword, sessionSecret, today }) {
     const player = db.listPlayers().find((p) => String(p.id) === String(playerId));
     if (!player) return fail('Select a valid player');
     if (!validDate(date)) return fail('Date must be a valid YYYY-MM-DD');
+    if (date > today()) return fail("Date can't be in the future");
     let parsed;
     try {
       parsed = parseShare(text);
