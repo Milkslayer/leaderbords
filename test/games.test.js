@@ -77,6 +77,15 @@ describe('countryle', () => {
   });
 });
 
+describe('detection order', () => {
+  it('countryle with globe emoji line stays countryle', () => {
+    expect(parseShare('Countryle 🌎 Oct 1 🌍\nI got it in 4 tries')).toEqual({ gameId: 'countryle', score: 4 });
+  });
+  it('globe emoji without = N is not globle', () => {
+    expect(() => parseShare('🌎 Oct 1 🌍')).toThrow(/detect/i);
+  });
+});
+
 describe('unknown', () => {
   it('throws ParseError with message', () => {
     expect(() => parseShare('hello world')).toThrow(ParseError);

@@ -24,8 +24,8 @@ const fromSix = (v) => (v.toUpperCase() === 'X' ? 7 : Number(v));
 const PARSERS = [
   { id: 'wordle', detect: /wordle/i, score: /wordle\s+[\d,]+\s+([1-6xX])\/6/i, map: fromSix, hint: 'e.g. "Wordle 1,571 4/6"' },
   { id: 'flagle', detect: /flagle/i, score: /(?<![\d])([1-6xX])\/6/i, map: fromSix, hint: 'e.g. "Flagle 4/6"' },
-  { id: 'globle', detect: /globle|[🌎🌍🌏][^\n]*[🌎🌍🌏]/iu, score: /=\s*(\d+)/, map: fromTries, hint: 'e.g. "🟥🟧🟨🟩 = 4"' },
   { id: 'countryle', detect: /countryle/i, score: /(\d+)\s+(?:tries|try|guesses|guess)\b/i, map: fromTries, hint: 'e.g. "in 4 tries"' },
+  { id: 'globle', detect: /globle|(?=[\s\S]*=\s*\d)[🌎🌍🌏][^\n]*[🌎🌍🌏]/iu, score: /=\s*(\d+)/, map: fromTries, hint: 'e.g. "🟥🟧🟨🟩 = 4"' },
 ];
 
 export function parseShare(text) {
