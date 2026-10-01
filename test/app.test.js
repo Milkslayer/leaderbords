@@ -43,6 +43,13 @@ describe('public boards', () => {
     expect(res.text).toContain('Wordle');
     expect(res.text).toContain('Alice');
   });
+  it('every page carries the sea-map background behind content', async () => {
+    for (const path of ['/', '/game/wordle', '/login']) {
+      const res = await request(app).get(path);
+      expect(res.text).toMatch(/<div class="sea"[^>]*data-bg="sea-map"[^>]*aria-hidden="true"/);
+      expect(res.text.indexOf('data-bg="sea-map"')).toBeLessThan(res.text.indexOf('<main>'));
+    }
+  });
   it('404s unknown game', async () => {
     expect((await request(app).get('/game/nope')).status).toBe(404);
   });
