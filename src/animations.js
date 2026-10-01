@@ -100,7 +100,7 @@ function poople() {
   return `<div class="poople">${tiles
     .map(
       ([from, to, k]) =>
-        `<span style="--k:${k}">${from ? `<i class="from">${from}</i>` : ''}<i class="to">${to}</i></span>`,
+        `<span style="--k:${k}">${from ? `<i class="from">${from}</i><i class="to">${to}</i>` : `<i class="keep">${to}</i>`}</span>`,
     )
     .join('')}</div>`;
 }

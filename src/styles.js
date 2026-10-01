@@ -80,7 +80,7 @@ h2{font-size:1.45rem;margin:36px 0 10px}
 p{margin:0 0 12px}
 
 /* Showcase strip */
-.showcase{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:26px 0 8px}
+.showcase{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin:26px 0 8px}
 .showcase a{
   display:flex;flex-direction:column;align-items:center;gap:8px;padding:14px 8px 10px;
   text-decoration:none;color:var(--ink);
@@ -302,7 +302,8 @@ td form.inline button{font-size:.85rem;padding:5px 9px 6px;color:var(--ink-soft)
   grid-area:1/1;font:400 calc(1.25rem * var(--s))/1 var(--fell);font-style:normal;color:#f6ecd4;
   animation:letter-in 8s ease-in-out infinite backwards;animation-delay:calc(var(--k) * .9s)
 }
-.poople i.from{color:var(--ink);animation-name:letter-out}
+.poople i.from{color:var(--ink);opacity:0;animation-name:letter-out}
+.poople i.keep{animation-name:letter-keep}
 @keyframes brown{
   0%,10%{background:#efe2c0;transform:translateY(0)}
   14%{background:#efe2c0;transform:translateY(calc(-4px * var(--s)))}
@@ -314,6 +315,11 @@ td form.inline button{font-size:.85rem;padding:5px 9px 6px;color:var(--ink-soft)
   18%,86%{opacity:1}
   94%,100%{opacity:0}
 }
+@keyframes letter-keep{
+  0%,14%{color:var(--ink)}
+  18%,86%{color:#f6ecd4}
+  94%,100%{color:var(--ink)}
+}
 @keyframes letter-out{
   0%,12%{opacity:1}
   16%,92%{opacity:0}
@@ -323,6 +329,7 @@ td form.inline button{font-size:.85rem;padding:5px 9px 6px;color:var(--ink-soft)
 @media (max-width:600px){
   body{font-size:17px}
   .showcase{grid-template-columns:repeat(2,1fr);gap:12px}
+  .showcase a:last-child:nth-child(odd){grid-column:1/-1}
   .game-head{gap:14px}
   .game-head .anim{--s:.78}
   th,td{padding:9px 8px}

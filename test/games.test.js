@@ -110,4 +110,18 @@ describe('poople', () => {
     expect(() => parseShare('Poople is fun')).toThrow(ParseError);
     expect(() => parseShare('Poople #412 /4')).toThrow(ParseError);
   });
+  it('parses a score of 1 and a share without the trailing URL', () => {
+    expect(parseShare('Poople #7 1/1\n🟫🟫🟫🟫')).toEqual({ gameId: 'poople', score: 1 });
+  });
+  it('does not cross-parse with other games', () => {
+    expect(parseShare(share).gameId).toBe('poople');
+    const others = [
+      ['Wordle 1,064 4/6' + grid, 'wordle'],
+      ['Flagle #123 3/6\n🟩⬜⬜', 'flagle'],
+      ['Countryle: I got it in 4 tries', 'countryle'],
+      ['Globle 🌎 = 4', 'globle'],
+      ['🌎 Oct 1 🌍\n🟥🟧🟨🟩 = 4', 'globle'],
+    ];
+    for (const [text, id] of others) expect(parseShare(text).gameId).toBe(id);
+  });
 });
