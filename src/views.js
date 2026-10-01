@@ -1,6 +1,7 @@
 import { GAMES } from './games.js';
 import { CSS, FONTS_HREF } from './styles.js';
 import { gameAnimation } from './animations.js';
+import { SEA_MAP } from './seamap.js';
 
 export function escapeHtml(value) {
   return String(value ?? '')
@@ -33,6 +34,7 @@ export function layout(title, body, { current } = {}) {
 <style>${CSS}</style>
 </head>
 <body>
+${SEA_MAP}
 <header class="masthead">
 <a class="title" href="/">Daily Leaderboard</a>
 <span class="rule"></span>

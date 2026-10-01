@@ -1,3 +1,5 @@
+import { SEA_CSS } from './seamap.js';
+
 // Parchment / old-ledger look. Pure CSS; grain comes from an inline SVG noise filter.
 
 const NOISE = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .25 0 0 0 0 .16 0 0 0 0 .07 0 0 0 .55 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`;
@@ -356,7 +358,7 @@ td form.inline button{font-size:.85rem;padding:5px 9px 6px;color:var(--ink-soft)
 @media (max-width:380px){
   .game-head{flex-direction:column;align-items:flex-start}
 }
-
+${SEA_CSS}
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{animation:none !important;transition:none !important}
 }
