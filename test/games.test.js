@@ -5,8 +5,8 @@ const grid = '\n\n⬛⬛⬛⬛⬛\n🟩🟩⬛⬛⬛\n🟩🟩🟩🟩🟩';
 
 describe('GAMES', () => {
   it('lists games in order with fail scores', () => {
-    expect(GAMES.map((g) => g.id)).toEqual(['wordle', 'countryle', 'globle', 'flagle']);
-    expect(GAMES.map((g) => g.failScore)).toEqual([7, null, null, 7]);
+    expect(GAMES.map((g) => g.id)).toEqual(['wordle', 'countryle', 'globle', 'flagle', 'poople']);
+    expect(GAMES.map((g) => g.failScore)).toEqual([7, null, null, 7, null]);
     expect(getGame('globle').name).toBe('Globle');
     expect(getGame('nope')).toBeUndefined();
   });
@@ -95,5 +95,19 @@ describe('unknown', () => {
     expect(() => parseShare('hello world')).toThrow(/game/i);
     expect(() => parseShare('')).toThrow(ParseError);
     expect(() => parseShare(undefined)).toThrow(ParseError);
+  });
+});
+
+describe('poople', () => {
+  const share = 'Poople #412 5/4\n⬜🟫⬜⬜\n⬜🟫🟫⬜\n🟫🟫🟫⬜\n🟫🟫🟫🟫\n https://poople.io/';
+  it('parses the share text (score is guesses used)', () => {
+    expect(parseShare(share)).toEqual({ gameId: 'poople', score: 5 });
+  });
+  it('parses with surrounding whitespace', () => {
+    expect(parseShare(`\n\n  ${share}  \n`)).toEqual({ gameId: 'poople', score: 5 });
+  });
+  it('rejects a malformed share', () => {
+    expect(() => parseShare('Poople is fun')).toThrow(ParseError);
+    expect(() => parseShare('Poople #412 /4')).toThrow(ParseError);
   });
 });

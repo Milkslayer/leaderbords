@@ -89,7 +89,23 @@ d="M22 6l9 3 4-2 6 5-1 7 6 4-2 6 5 5-3 6 4 8-5 4 1 7-6 5-2 8-6 2-4-5-5 1-3-6 2-6
 </div>`;
 }
 
-const RENDER = { wordle, globle, flagle, countryle };
+function poople() {
+  // LUMP -> PUMP -> POMP -> POOP: one letter changes per step, tiles turn brown.
+  const tiles = [
+    ['L', 'P', 0],
+    ['U', 'O', 1],
+    ['M', 'O', 2],
+    [null, 'P', 3],
+  ];
+  return `<div class="poople">${tiles
+    .map(
+      ([from, to, k]) =>
+        `<span style="--k:${k}">${from ? `<i class="from">${from}</i>` : ''}<i class="to">${to}</i></span>`,
+    )
+    .join('')}</div>`;
+}
+
+const RENDER = { wordle, globle, flagle, countryle, poople };
 
 export function gameAnimation(gameId, { size = 'lg' } = {}) {
   const render = Object.hasOwn(RENDER, gameId) ? RENDER[gameId] : null;

@@ -1,6 +1,6 @@
 # Daily Leaderboard
 
-Self-hosted leaderboard for daily puzzle games (Wordle, Countryle, Globle, Flagle). An admin pastes each
+Self-hosted leaderboard for daily puzzle games (Wordle, Countryle, Globle, Flagle, Poople). An admin pastes each
 player's share text, the app parses the score, and public boards rank players for today, the last 7 days,
 or all time. Lower scores are better.
 

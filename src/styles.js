@@ -290,6 +290,36 @@ td form.inline button{font-size:.85rem;padding:5px 9px 6px;color:var(--ink-soft)
 .country .outline{stroke-dasharray:1;stroke-dashoffset:0;animation:trace 6s ease-in-out infinite}
 @keyframes trace{0%{stroke-dashoffset:1} 40%,92%{stroke-dashoffset:0} 100%{stroke-dashoffset:1}}
 
+/* Poople */
+.poople{display:flex;gap:calc(5px * var(--s));line-height:1}
+.poople span{
+  position:relative;width:calc(30px * var(--s));height:calc(34px * var(--s));display:grid;place-items:center;
+  background:#7a5230;border:1px solid rgba(60,35,10,.35);border-radius:2px;
+  box-shadow:inset 0 -2px 0 rgba(0,0,0,.15);
+  animation:brown 8s ease-in-out infinite backwards;animation-delay:calc(var(--k) * .9s)
+}
+.poople i{
+  grid-area:1/1;font:400 calc(1.25rem * var(--s))/1 var(--fell);font-style:normal;color:#f6ecd4;
+  animation:letter-in 8s ease-in-out infinite backwards;animation-delay:calc(var(--k) * .9s)
+}
+.poople i.from{color:var(--ink);animation-name:letter-out}
+@keyframes brown{
+  0%,10%{background:#efe2c0;transform:translateY(0)}
+  14%{background:#efe2c0;transform:translateY(calc(-4px * var(--s)))}
+  18%,86%{background:#7a5230;transform:translateY(0)}
+  94%,100%{background:#efe2c0;transform:translateY(0)}
+}
+@keyframes letter-in{
+  0%,13%{opacity:0}
+  18%,86%{opacity:1}
+  94%,100%{opacity:0}
+}
+@keyframes letter-out{
+  0%,12%{opacity:1}
+  16%,92%{opacity:0}
+  98%,100%{opacity:1}
+}
+
 @media (max-width:600px){
   body{font-size:17px}
   .showcase{grid-template-columns:repeat(2,1fr);gap:12px}

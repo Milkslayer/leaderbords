@@ -3,6 +3,7 @@ export const GAMES = [
   { id: 'countryle', name: 'Countryle', failScore: null },
   { id: 'globle', name: 'Globle', failScore: null },
   { id: 'flagle', name: 'Flagle', failScore: 7 },
+  { id: 'poople', name: 'Poople', failScore: null },
 ];
 
 export function getGame(id) {
@@ -26,12 +27,13 @@ const PARSERS = [
   { id: 'flagle', detect: /flagle/i, score: /(?<![\d])([1-6xX])\/6/i, map: fromSix, hint: 'e.g. "Flagle 4/6"' },
   { id: 'countryle', detect: /countryle/i, score: /(\d+)\s+(?:tries|try|guesses|guess)\b/i, map: fromTries, hint: 'e.g. "in 4 tries"' },
   { id: 'globle', detect: /globle|(?=[\s\S]*=\s*\d)[🌎🌍🌏][^\n]*[🌎🌍🌏]/iu, score: /=\s*(\d+)/, map: fromTries, hint: 'e.g. "🟥🟧🟨🟩 = 4"' },
+  { id: 'poople', detect: /poople/i, score: /poople\s+#\d+\s+(\d+)\/\d+/i, map: fromTries, hint: 'e.g. "Poople #412 5/4"' },
 ];
 
 export function parseShare(text) {
   if (typeof text !== 'string' || !text.trim()) throw new ParseError('Paste a share text to parse.');
   const parser = PARSERS.find((p) => p.detect.test(text));
-  if (!parser) throw new ParseError('Could not detect the game (expected Wordle, Countryle, Globle or Flagle).');
+  if (!parser) throw new ParseError('Could not detect the game (expected Wordle, Countryle, Globle, Flagle or Poople).');
   const m = text.match(parser.score);
   const name = getGame(parser.id).name;
   if (!m) throw new ParseError(`Detected ${name} but could not read the score (${parser.hint}).`);
