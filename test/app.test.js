@@ -32,6 +32,21 @@ describe('public boards', () => {
     expect(res.text).toContain('Bob');
     expect(res.text).toContain('Points');
   });
+  it('explains scoring under the overall board', async () => {
+    const res = await request(app).get('/');
+    const board = res.text.indexOf('class="ledger"');
+    const note = res.text.indexOf('<aside class="scoring-note"');
+    expect(board).toBeGreaterThan(-1);
+    expect(note).toBeGreaterThan(board);
+    expect(res.text).toContain('How scoring works');
+    expect(res.text).toMatch(/3, 2 and 1 points/);
+    expect(res.text).toMatch(/ties share/i);
+    expect(res.text).toMatch(/fails? .*score 0|score 0/i);
+  });
+  it('game pages do not show the scoring note', async () => {
+    const res = await request(app).get('/game/wordle');
+    expect(res.text).not.toContain('How scoring works');
+  });
   it('shows empty state', async () => {
     const res = await request(app).get('/');
     expect(res.text).toContain('No results yet');

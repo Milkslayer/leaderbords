@@ -186,6 +186,14 @@ tbody tr:nth-child(even) .stamp{transform:rotate(1.8deg)}
   background:rgba(139,42,27,.08);border-left:3px solid var(--red);font-style:italic
 }
 
+/* Marginal note under the overall board */
+.scoring-note{
+  margin:28px 0 0;padding:4px 0 4px 18px;max-width:600px;
+  border-left:2px solid rgba(139,42,27,.55);color:var(--ink-soft);font-size:1rem
+}
+.scoring-note h2{margin:0 0 6px;font-size:1.15rem;font-style:italic;color:var(--ink)}
+.scoring-note p{margin:0 0 6px}
+
 /* Forms: ruled paper lines and stamped labels */
 form{margin:0 0 14px}
 .sheet-form{padding:12px 20px 8px;margin-bottom:6px}

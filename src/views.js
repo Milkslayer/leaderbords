@@ -84,6 +84,12 @@ function showcase() {
   ).join('')}</nav>`;
 }
 
+const SCORING_NOTE = `<aside class="scoring-note" aria-labelledby="scoring-note-title">
+<h2 id="scoring-note-title">How scoring works</h2>
+<p>Each game, each day, the best three scores earn 3, 2 and 1 points. Ties share the better place, and the next place is skipped.</p>
+<p>Fails and give-ups score 0 and take no place. A game played by only one person that day scores 0 for everyone.</p>
+</aside>`;
+
 export function overallPage({ period, board }) {
   const columns = [
     { label: '#', cls: 'rank', render: (r, i) => rankCell(i + 1) },
@@ -93,7 +99,7 @@ export function overallPage({ period, board }) {
   ];
   return layout(
     'Overall - Daily Leaderboard',
-    `${showcase()}<h1>Overall</h1>${tabs('/', period)}${ledger(columns, board)}`,
+    `${showcase()}<h1>Overall</h1>${tabs('/', period)}${ledger(columns, board)}${SCORING_NOTE}`,
     { current: 'overall' },
   );
 }
