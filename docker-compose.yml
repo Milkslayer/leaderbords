@@ -1,0 +1,15 @@
+services:
+  leaderboard:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD}
+      SESSION_SECRET: ${SESSION_SECRET}
+      TZ: ${TZ:-Europe/London}
+    volumes:
+      - leaderboard-data:/data
+    restart: unless-stopped
+
+volumes:
+  leaderboard-data:
